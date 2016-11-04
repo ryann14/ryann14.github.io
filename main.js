@@ -11,17 +11,15 @@ var libralLatitude = 37.587740;
 var libralLongitude = 127.031282;
 var koreaLimitKm = 0.5;
 
+var seonreungLatitude = 37.505730;
+var seonreungLongitude = 127.050448;
+
 var yonseiLatitude = 37.562415;
 var yonseiLongitude = 126.941025;
-var yonseiLimitKm = 1;
+var yonseiLimitKm = 1.0;
 
-var x = document.getElementById("demo");
 var btnBall = document.getElementById("btn-ball");
 var imgPokemon = document.getElementById("img-pokemon");
-
-btnBall.addEventListener('click', function (event) {
-  
-});
 
 navigator.getUserMedia = navigator.getUserMedia ||
   navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
@@ -29,16 +27,17 @@ navigator.getUserMedia = navigator.getUserMedia ||
 function gotSources(sourceInfos) {
   for (var i = sourceInfos.length - 1; i >= 0; --i) {
     var sourceInfo = sourceInfos[i];
-        backSourceId = sourceInfo.id;
-        start();
-        break;
+    backSourceId = sourceInfo.id;
+    start();
+    break;
   }
 }
 
 if (typeof MediaStreamTrack === 'undefined' ||
   typeof MediaStreamTrack.getSources === 'undefined') {
   alert('This browser does not support MediaStreamTrack.\n\nTry Chrome.');
-} else {
+}
+else {
   MediaStreamTrack.getSources(gotSources);
 }
 
@@ -86,50 +85,66 @@ function getLocation() {
         timeout: 5000
       }
     );
-  } else {
-    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+  else {
+    alert("Geolocation is not supported by this browser.");
   }
 }
+
+var showForbiddenAlert = false;
 
 function showPosition(position) {
   var latitude = position.coords.latitude;
   var longitude = position.coords.longitude;
-  
-  x.innerHTML = "Latitude: " + position.coords.latitude +
-    "<br>Longitude: " + position.coords.longitude;
-    
+
   var engineeringDistance = calcCrow(latitude, longitude, engineeringLatitude, engineeringLongitude).toFixed(1);
   var libralDistance = calcCrow(latitude, longitude, libralLatitude, libralLongitude).toFixed(1);
   var medicalDistance = calcCrow(latitude, longitude, medicalLatitude, medicalLongitude).toFixed(1);
-  
+  var seonreungDistance = calcCrow(latitude, longitude, seonreungLatitude, seonreungLongitude).toFixed(1);
+  var yonseiDistance = calcCrow(latitude, longitude, yonseiLatitude, yonseiLongitude).toFixed(1);
+
   var minDistance = Math.min(Math.min(engineeringDistance, libralDistance), medicalDistance);
-  
-  console.log("min distance:" + minDistance + "," + engineeringDistance + "," + libralDistance + ", " + medicalDistance);
-    
-  switch(minDistance) {
-    case engineeringDistance:
-      console.log("pikachu");
-      imgPokemon.style.background = "url('http://www.pngmart.com/files/2/Pikachu-PNG-HD.png')";
-      break;
-    case libralDistance:
-      console.log("liako");
-      imgPokemon.style.background = "url('http://vignette3.wikia.nocookie.net/pokemon/images/a/af/158%EB%A6%AC%EC%95%84%EC%BD%94.png/revision/latest?cb=20101019232247&path-prefix=ko')";
-      break;
-    case medicalDistance:
-    default:
-      console.log("eveee");
-      imgPokemon.style.background = "url('http://vignette4.wikia.nocookie.net/helixpedia/images/f/f2/Eevee.png/revision/latest?cb=20140507045218')";
-      break;
+  minDistance = Math.min(Math.min(minDistance, seonreungDistance), yonseiDistance);
+
+  if (minDistance == yonseiDistance) {
+    //forbidden place, hide pokemon and show alert message.
+    if (minDistance <= yonseiLimitKm) {
+      btnBall.style.display = 'none';
+      imgPokemon.style.display = 'none';
+
+      //show alert message once.
+      if (!showForbiddenAlert) {
+        showForbiddenAlert = true;
+        alert("Pokemon KU is forbidden in this place!!");
+      }
+    }
+    return;
   }
+  else if (minDistance == engineeringDistance) {
+    console.log("pikachu");
+    imgPokemon.style.background = "url('http://www.pngmart.com/files/2/Pikachu-PNG-HD.png')";
+  }
+  else if (minDistance == libralDistance || minDistance == seonreungDistance) {
+    console.log("liako");
+    imgPokemon.style.background = "url('http://vignette3.wikia.nocookie.net/pokemon/images/a/af/158%EB%A6%AC%EC%95%84%EC%BD%94.png/revision/latest?cb=20101019232247&path-prefix=ko')";
+  }
+  else {
+    //medical place in korea university and the other.
+    console.log("eveee");
+    imgPokemon.style.background = "url('http://vignette4.wikia.nocookie.net/helixpedia/images/f/f2/Eevee.png/revision/latest?cb=20140507045218')";
+  }
+
+  btnBall.style.background = "url('http://icons.iconarchive.com/icons/igh0zt/ios7-style-metro-ui/512/MetroUI-Other-Sound-icon.png')";
+  btnBall.style.backgroundSize = "cover";
   imgPokemon.style.backgroundSize = "cover";
-  
-  console.log(minDistance);
-  if (minDistance < 10) {
-    console.log("visible");
+
+  if (minDistance < koreaLimitKm) {
+    //console.log("visible");
     btnBall.style.display = 'visible';
     imgPokemon.style.display = 'visible';
-  } else {
-    console.log("none");
+  }
+  else {
+    //console.log("none");
     btnBall.style.display = 'none';
     imgPokemon.style.display = 'none';
   }

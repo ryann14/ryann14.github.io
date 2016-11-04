@@ -25,8 +25,6 @@ button {
 }
 
 .container>.img-pokemon {
-  background: url('http://vignette4.wikia.nocookie.net/characterprofile/images/f/f2/Eevee.png/revision/latest?cb=20160617124107');
-  background-size: cover;
   width: 200px;
   height: 200px;
   left: 20%;
@@ -36,13 +34,13 @@ button {
 }
 
 .container>.btn-ball {
-  background: url('http://www.pngmart.com/files/2/Pokeball-PNG-Image.png') center center no-repeat;
+  background: none;
   background-size: cover;
-  height: 42px;
-  left: 45%;
+  height: 100px;
+  left: 35%;
   position: absolute;
   bottom: 10%;
-  width: 42px;
+  width: 100px;
   z-index: 1;
 }
 
