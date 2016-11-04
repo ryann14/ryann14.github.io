@@ -5,8 +5,8 @@ var backSourceId;
 
 var engineeringLatitude = 37.584596;
 var engineeringLongitude = 127.026551;
-var engineeringLatitude = 37.587698;
-var engineeringLongitude = 127.026980;
+var medicalLatitude = 37.587698;
+var medicalLongitude = 127.026980;
 var libralLatitude = 37.587740;
 var libralLongitude = 127.031282;
 var koreaLimitKm = 0.5;
@@ -17,7 +17,11 @@ var yonseiLimitKm = 1;
 
 var x = document.getElementById("demo");
 var btnBall = document.getElementById("btn-ball");
-btnBall.style.display = 'none';
+var imgPokemon = document.getElementById("img-pokemon");
+
+btnBall.addEventListener('click', function (event) {
+  
+});
 
 navigator.getUserMedia = navigator.getUserMedia ||
   navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
@@ -25,14 +29,9 @@ navigator.getUserMedia = navigator.getUserMedia ||
 function gotSources(sourceInfos) {
   for (var i = sourceInfos.length - 1; i >= 0; --i) {
     var sourceInfo = sourceInfos[i];
-
-    if (sourceInfo.kind === 'video') {
-      if (sourceInfo.label.includes("back")) {
         backSourceId = sourceInfo.id;
         start();
-      }
-
-    }
+        break;
   }
 }
 
@@ -78,7 +77,7 @@ function getLocation() {
 
     navigator.geolocation.getCurrentPosition(
       function(position) {
-        alert("Lat: " + position.coords.latitude + "\nLon: " + position.coords.longitude);
+        //alert("Lat: " + position.coords.latitude + "\nLon: " + position.coords.longitude);
       },
       function(error) {
         alert(error.message);
@@ -93,10 +92,47 @@ function getLocation() {
 }
 
 function showPosition(position) {
+  var latitude = position.coords.latitude;
+  var longitude = position.coords.longitude;
+  
   x.innerHTML = "Latitude: " + position.coords.latitude +
     "<br>Longitude: " + position.coords.longitude;
-
-  alert(calcCrow(position.coords.latitude, position.coords.longitude, engineeringLatitude, engineeringLongitude).toFixed(1));
+    
+  var engineeringDistance = calcCrow(latitude, longitude, engineeringLatitude, engineeringLongitude).toFixed(1);
+  var libralDistance = calcCrow(latitude, longitude, libralLatitude, libralLongitude).toFixed(1);
+  var medicalDistance = calcCrow(latitude, longitude, medicalLatitude, medicalLongitude).toFixed(1);
+  
+  var minDistance = Math.min(Math.min(engineeringDistance, libralDistance), medicalDistance);
+  
+  console.log("min distance:" + minDistance + "," + engineeringDistance + "," + libralDistance + ", " + medicalDistance);
+    
+  switch(minDistance) {
+    case engineeringDistance:
+      console.log("pikachu");
+      imgPokemon.style.background = "url('http://www.pngmart.com/files/2/Pikachu-PNG-HD.png')";
+      break;
+    case libralDistance:
+      console.log("liako");
+      imgPokemon.style.background = "url('http://vignette3.wikia.nocookie.net/pokemon/images/a/af/158%EB%A6%AC%EC%95%84%EC%BD%94.png/revision/latest?cb=20101019232247&path-prefix=ko')";
+      break;
+    case medicalDistance:
+    default:
+      console.log("eveee");
+      imgPokemon.style.background = "url('http://vignette4.wikia.nocookie.net/helixpedia/images/f/f2/Eevee.png/revision/latest?cb=20140507045218')";
+      break;
+  }
+  imgPokemon.style.backgroundSize = "cover";
+  
+  console.log(minDistance);
+  if (minDistance < 10) {
+    console.log("visible");
+    btnBall.style.display = 'visible';
+    imgPokemon.style.display = 'visible';
+  } else {
+    console.log("none");
+    btnBall.style.display = 'none';
+    imgPokemon.style.display = 'none';
+  }
 }
 
 //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
